@@ -1,49 +1,22 @@
-# Project phonepe-api
+# Payment Gateway Integration with PhonePe
 
-One Paragraph of project description goes here
+This repository contains a Go API that integrates a payment gateway with PhonePe. It includes functionality for initiating payments, managing transactions, and more.
 
-## Getting Started
+## Features
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+- **Payment Gateway Integration**: Easily initiate and manage payments using the PhonePe API.
+- **Environment Variables**: Configuration is managed through environment variables for flexibility and security.
 
-## MakeFile
+## Prerequisites
 
-run all make commands with clean tests
-```bash
-make all build
-```
+- [Go](https://golang.org/doc/install) (version 1.16+ recommended)
+- A [PhonePe](https://www.phonepe.com/en/business.html) merchant account
+- API keys and credentials from PhonePe
 
-build the application
-```bash
-make build
-```
+## Setup
 
-run the application
-```bash
-make run
-```
+1. **Clone the repository**:
 
-Create DB container
-```bash
-make docker-run
-```
-
-Shutdown DB container
-```bash
-make docker-down
-```
-
-live reload the application
-```bash
-make watch
-```
-
-run the test suite
-```bash
-make test
-```
-
-clean up binary from the last build
-```bash
-make clean
-```
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   cd your-repo-name
