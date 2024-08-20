@@ -31,6 +31,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.HandlerFunc(http.MethodGet, "/pay", s.payHandler)
 
+	r.HandlerFunc(http.MethodGet, "/redirect-url/", s.RedirectHandler)
+
 	return r
 }
 
@@ -97,6 +99,7 @@ type PaymentResponse struct {
 	} `json:"data"`
 }
 
+// http://localhost:8080/pay
 func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 	// if r.Method != http.MethodPost {
 	// 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -116,8 +119,8 @@ func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 		MerchantID:            MerchantId,
 		MerchantTransactionID: merchantTransactionID,
 		MerchantUserID:        userID,
-		Amount:                3000,                                                                        // Amount in Paise
-		RedirectURL:           fmt.Sprintf("http://localhost:8080/redirect-url/%s", merchantTransactionID), // Provide a valid redirect URL
+		Amount:                3000,                            // Amount in Paise
+		RedirectURL:           "http://localhost:5174/phonepe", //fmt.Sprintf("http://localhost:8080/redirect-url/txId = %s", merchantTransactionID), // Provide a valid redirect URL
 		RedirectMode:          "REDIRECT",
 		CallbackURL:           "http://localhost:8080/callback-url", // Provide a valid callback URL
 		MobileNumber:          "9999999999",
@@ -185,7 +188,26 @@ func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(paymentResp)
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	fmt.Println()
+	fmt.Println(jsonResponse)
+	// w.WriteHeader(http.StatusOK)
+	// w.Write(jsonResponse)
+	http.Redirect(w, r, paymentResp.Data.InstrumentResponse.RedirectInfo.URL, http.StatusFound)
 	return
+}
+func (s *Server) RedirectHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	parts := strings.Split(path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+	userID := parts[2]
+
+	// For example, return user info as a plain text response (replace this with actual logic)
+	userInfo := fmt.Sprintf("Merchant Transaction ID: %s", userID)
+
+	// Send the response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(userInfo))
 }
