@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -38,7 +39,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	resp := make(map[string]string)
-	resp["message"] = "Hello World from PhonePe!"
+	resp["message"] = "Hello World from PhonePe!, call endpoint http://localhost:8080/pay/amount=30"
 
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
@@ -101,16 +102,13 @@ type PaymentResponse struct {
 
 // http://localhost:8080/pay
 func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
-	// if r.Method != http.MethodPost {
-	// 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	// 	return
-	// }
-	// var reqBody RequestData
-	// err := json.NewDecoder(r.Body).Decode(&reqBody)
-	// if err != nil {
-	// 	http.Error(w, "Invalid request body", http.StatusBadRequest)
-	// 	return
-	// }
+	amt := r.URL.Query().Get("amount")
+	num, err := strconv.ParseUint(amt, 10, 32) // For 32-bit unsigned integer
+	if err != nil {
+		http.Error(w, "Failed to parse amount", http.StatusBadRequest)
+		return
+	}
+	uintNum := uint(num)
 	merchantTransactionID := uuid.New().String()
 	userID := "123242"
 	fmt.Println("merchantTransactionID")
@@ -119,8 +117,8 @@ func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 		MerchantID:            MerchantId,
 		MerchantTransactionID: merchantTransactionID,
 		MerchantUserID:        userID,
-		Amount:                3000,                            // Amount in Paise
-		RedirectURL:           "http://localhost:5174/phonepe", //fmt.Sprintf("http://localhost:8080/redirect-url/txId = %s", merchantTransactionID), // Provide a valid redirect URL
+		Amount:                int64(uintNum * uint(100)),                                                  // Amount in Paise
+		RedirectURL:           fmt.Sprintf("http://localhost:8080/redirect-url/%s", merchantTransactionID), // Provide a valid redirect URL
 		RedirectMode:          "REDIRECT",
 		CallbackURL:           "http://localhost:8080/callback-url", // Provide a valid callback URL
 		MobileNumber:          "9999999999",
