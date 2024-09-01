@@ -32,6 +32,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.HandlerFunc(http.MethodGet, "/pay", s.payHandler)
 
+	r.HandlerFunc(http.MethodGet, "/redirect-url/", s.RedirectHandler)
+
 	return r
 }
 
@@ -98,6 +100,7 @@ type PaymentResponse struct {
 	} `json:"data"`
 }
 
+// http://localhost:8080/pay
 func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 	amt := r.URL.Query().Get("amount")
 	num, err := strconv.ParseUint(amt, 10, 32) // For 32-bit unsigned integer
@@ -183,7 +186,26 @@ func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(paymentResp)
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	fmt.Println()
+	fmt.Println(jsonResponse)
+	// w.WriteHeader(http.StatusOK)
+	// w.Write(jsonResponse)
+	http.Redirect(w, r, paymentResp.Data.InstrumentResponse.RedirectInfo.URL, http.StatusFound)
 	return
+}
+func (s *Server) RedirectHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	parts := strings.Split(path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+	userID := parts[2]
+
+	// For example, return user info as a plain text response (replace this with actual logic)
+	userInfo := fmt.Sprintf("Merchant Transaction ID: %s", userID)
+
+	// Send the response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(userInfo))
 }
