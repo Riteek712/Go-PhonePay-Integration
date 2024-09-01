@@ -101,16 +101,6 @@ type PaymentResponse struct {
 
 // http://localhost:8080/pay
 func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
-	// if r.Method != http.MethodPost {
-	// 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	// 	return
-	// }
-	// var reqBody RequestData
-	// err := json.NewDecoder(r.Body).Decode(&reqBody)
-	// if err != nil {
-	// 	http.Error(w, "Invalid request body", http.StatusBadRequest)
-	// 	return
-	// }
 	merchantTransactionID := uuid.New().String()
 	userID := "123242"
 	fmt.Println("merchantTransactionID")
@@ -120,7 +110,7 @@ func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 		MerchantTransactionID: merchantTransactionID,
 		MerchantUserID:        userID,
 		Amount:                3000,                            // Amount in Paise
-		RedirectURL:           "http://localhost:5174/phonepe", //fmt.Sprintf("http://localhost:8080/redirect-url/txId = %s", merchantTransactionID), // Provide a valid redirect URL
+		RedirectURL:           "http://localhost:5173/phonepe", 
 		RedirectMode:          "REDIRECT",
 		CallbackURL:           "http://localhost:8080/callback-url", // Provide a valid callback URL
 		MobileNumber:          "9999999999",
