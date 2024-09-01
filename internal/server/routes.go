@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -98,16 +99,13 @@ type PaymentResponse struct {
 }
 
 func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
-	// if r.Method != http.MethodPost {
-	// 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	// 	return
-	// }
-	// var reqBody RequestData
-	// err := json.NewDecoder(r.Body).Decode(&reqBody)
-	// if err != nil {
-	// 	http.Error(w, "Invalid request body", http.StatusBadRequest)
-	// 	return
-	// }
+	amt := r.URL.Query().Get("amount")
+	num, err := strconv.ParseUint(amt, 10, 32) // For 32-bit unsigned integer
+	if err != nil {
+		http.Error(w, "Failed to parse amount", http.StatusBadRequest)
+		return
+	}
+	uintNum := uint(num)
 	merchantTransactionID := uuid.New().String()
 	userID := "123242"
 	fmt.Println("merchantTransactionID")
@@ -116,7 +114,7 @@ func (s *Server) payHandler(w http.ResponseWriter, r *http.Request) {
 		MerchantID:            MerchantId,
 		MerchantTransactionID: merchantTransactionID,
 		MerchantUserID:        userID,
-		Amount:                3000,                                                                        // Amount in Paise
+		Amount:                int64(uintNum * uint(100)),                                                  // Amount in Paise
 		RedirectURL:           fmt.Sprintf("http://localhost:8080/redirect-url/%s", merchantTransactionID), // Provide a valid redirect URL
 		RedirectMode:          "REDIRECT",
 		CallbackURL:           "http://localhost:8080/callback-url", // Provide a valid callback URL
