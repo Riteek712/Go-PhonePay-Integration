@@ -37,7 +37,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	resp := make(map[string]string)
-	resp["message"] = "Hello World from PhonePe!"
+	resp["message"] = "Hello World from PhonePe!, call endpoint http://localhost:8080/pay/amount=30"
 
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
